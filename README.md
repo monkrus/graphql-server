@@ -11,7 +11,10 @@
 ## Install
 
 ```sh
-`go mod init github.com/monkrus/graphql-server`
+Initialize with  `go mod init github.com/monkrus/graphql-server`
+Run              `go get github.com/99designs/gqlgen`
+Project skeleton `go run github.com/99designs/gqlgen init`
+Start with       `go run ./server.go"`
 ```
 ## Usage
 
