@@ -16,10 +16,13 @@ Run              `go get github.com/99designs/gqlgen`
 Project skeleton `go run github.com/99designs/gqlgen init`
 Start with       `go run ./server.go"`
 ```
-## Usage
+## Steps
 
 ```sh
-empty 
+Goto `cd graph/`
+Important 
+Run `go generate`
+Implement 2 functions in `schema.resolvers.go`
 ```
 ## Run tests
 

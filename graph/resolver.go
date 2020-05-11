@@ -1,7 +1,9 @@
 package graph
 
-// This file will not be regenerated automatically.
-//
-// It serves as dependency injection for your app, add any dependencies you require here.
+import "github.com/monkrus/graphql-server/graph/model"
 
-type Resolver struct{}
+//go:generate go run github.com/99designs/gqlgen
+
+type Resolver struct{
+	videos []model.Video
+}

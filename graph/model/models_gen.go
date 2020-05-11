@@ -2,19 +2,20 @@
 
 package model
 
-type NewTodo struct {
+type NewVideo struct {
 	Text   string `json:"text"`
+	URL    string `json:"url"`
 	UserID string `json:"userId"`
-}
-
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
 }
 
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+type Video struct {
+	ID     string `json:"id"`
+	Title  string `json:"title"`
+	URL    string `json:"url"`
+	Author *User  `json:"author"`
 }
