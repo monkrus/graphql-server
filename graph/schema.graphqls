@@ -1,4 +1,6 @@
-
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
 
 type Video {
   id: ID!
@@ -17,11 +19,15 @@ type Query {
 }
 
 input NewVideo {
-  text: String!
-  url:String!
+  title: String!
+  url: String!
   userId: String!
 }
 
 type Mutation {
   createVideo(input: NewVideo!): Video!
+}
+
+type Subscription {
+  videoAdded(repoFullName: String!): Video
 }

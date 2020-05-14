@@ -3,7 +3,7 @@
 package model
 
 type NewVideo struct {
-	Text   string `json:"text"`
+	Title  string `json:"title"`
 	URL    string `json:"url"`
 	UserID string `json:"userId"`
 }

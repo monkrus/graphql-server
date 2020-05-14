@@ -5,6 +5,8 @@ package graph
 
 import (
 	"context"
+	"crypto/rand"
+
 	"fmt"
 
 	"github.com/monkrus/graphql-server/graph/generated"
@@ -12,13 +14,17 @@ import (
 )
 
 func (r *mutationResolver) CreateVideo(ctx context.Context, input model.NewVideo) (*model.Video, error) {
-	video:= model.Video{
-		ID: fmt.Sprintf()
+	video := &model.Video{
+		ID:     fmt.Sprintf("T%s", rand.Int()),
+		Title:  input.Title,
+		Author: &model.User{ID: input.UserID, Name: "user " + input.UserID},
 	}
+	r.videos = append(r.videos, video)
+	return video, nil
 }
 
 func (r *queryResolver) Videos(ctx context.Context) ([]*model.Video, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.videos, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

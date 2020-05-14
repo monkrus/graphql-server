@@ -20,7 +20,8 @@ Start with       `go run ./server.go"`
 
 ```sh
 Goto `cd graph/`
-Important 
+Important !
+Remove `schema.resolvers.go`
 Run `go generate`
 Implement 2 functions in `schema.resolvers.go`
 ```
