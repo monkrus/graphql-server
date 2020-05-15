@@ -8,27 +8,30 @@
 
 ### 🏠 [Homepage](https://www.youtube.com/watch?v=ocNw1GHovUI)
 
-## Install
+## Installation
 
 ```sh
-Initialize with  `go mod init github.com/monkrus/graphql-server`
-Run              `go get github.com/99designs/gqlgen`
-Project skeleton `go run github.com/99designs/gqlgen init`
-Start with       `go run ./server.go"`
+Initialize with   `go mod init github.com/monkrus/graphql-server`
+Run               `go get github.com/99designs/gqlgen`
+Project skeleton  `go run github.com/99designs/gqlgen init`
+Replace           `schema.graphqls` file
+Add               `// go: generate go run github.com/99designs/gqlgen` to resolver.go
+Remove            `schema.resolvers.go`
+Goto              `cd graph/`
+Run               `go run github.com/99designs/gqlgen generate`
 ```
-## Steps
+
+## Further Steps
 
 ```sh
-Goto `cd graph/`
-Important !
-Remove `schema.resolvers.go`
-Run `go generate`
-Implement 2 functions in `schema.resolvers.go`
+Modify `schema.reslovers.go`
+Run    `go run server.go` 
 ```
+
 ## Run tests
 
 ```sh
-empty
+Start with  `go run ./server.go"`
 ```
 ## Author
 

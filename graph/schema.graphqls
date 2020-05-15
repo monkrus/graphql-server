@@ -2,6 +2,7 @@
 #
 # https://gqlgen.com/getting-started/
 
+
 type Video {
   id: ID!
   title: String!
@@ -26,8 +27,4 @@ input NewVideo {
 
 type Mutation {
   createVideo(input: NewVideo!): Video!
-}
-
-type Subscription {
-  videoAdded(repoFullName: String!): Video
 }

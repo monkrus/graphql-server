@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -38,7 +37,6 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
-	Subscription() SubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -51,10 +49,6 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Videos func(childComplexity int) int
-	}
-
-	Subscription struct {
-		VideoAdded func(childComplexity int, repoFullName string) int
 	}
 
 	User struct {
@@ -75,9 +69,6 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Videos(ctx context.Context) ([]*model.Video, error)
-}
-type SubscriptionResolver interface {
-	VideoAdded(ctx context.Context, repoFullName string) (<-chan *model.Video, error)
 }
 
 type executableSchema struct {
@@ -113,18 +104,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Videos(childComplexity), true
-
-	case "Subscription.videoAdded":
-		if e.complexity.Subscription.VideoAdded == nil {
-			break
-		}
-
-		args, err := ec.field_Subscription_videoAdded_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Subscription.VideoAdded(childComplexity, args["repoFullName"].(string)), true
 
 	case "User.id":
 		if e.complexity.User.ID == nil {
@@ -206,23 +185,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 				Data: buf.Bytes(),
 			}
 		}
-	case ast.Subscription:
-		next := ec._Subscription(ctx, rc.Operation.SelectionSet)
-
-		var buf bytes.Buffer
-		return func(ctx context.Context) *graphql.Response {
-			buf.Reset()
-			data := next()
-
-			if data == nil {
-				return nil
-			}
-			data.MarshalGQL(&buf)
-
-			return &graphql.Response{
-				Data: buf.Bytes(),
-			}
-		}
 
 	default:
 		return graphql.OneShot(graphql.ErrorResponse(ctx, "unsupported GraphQL operation"))
@@ -253,6 +215,7 @@ var sources = []*ast.Source{
 #
 # https://gqlgen.com/getting-started/
 
+
 type Video {
   id: ID!
   title: String!
@@ -277,10 +240,6 @@ input NewVideo {
 
 type Mutation {
   createVideo(input: NewVideo!): Video!
-}
-
-type Subscription {
-  videoAdded(repoFullName: String!): Video
 }
 `, BuiltIn: false},
 }
@@ -315,20 +274,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Subscription_videoAdded_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["repoFullName"]; ok {
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["repoFullName"] = arg0
 	return args, nil
 }
 
@@ -510,54 +455,6 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Subscription_videoAdded(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = nil
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Subscription",
-		Field:    field,
-		Args:     nil,
-		IsMethod: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Subscription_videoAdded_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return nil
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().VideoAdded(rctx, args["repoFullName"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return nil
-	}
-	if resTmp == nil {
-		return nil
-	}
-	return func() graphql.Marshaler {
-		res, ok := <-resTmp.(<-chan *model.Video)
-		if !ok {
-			return nil
-		}
-		return graphql.WriterFunc(func(w io.Writer) {
-			w.Write([]byte{'{'})
-			graphql.MarshalString(field.Alias).MarshalGQL(w)
-			w.Write([]byte{':'})
-			ec.marshalOVideo2ᚖgithubᚗcomᚋmonkrusᚋgraphqlᚑserverᚋgraphᚋmodelᚐVideo(ctx, field.Selections, res).MarshalGQL(w)
-			w.Write([]byte{'}'})
-		})
-	}
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -1932,26 +1829,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var subscriptionImplementors = []string{"Subscription"}
-
-func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func() graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
-	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
-		Object: "Subscription",
-	})
-	if len(fields) != 1 {
-		ec.Errorf(ctx, "must subscribe to exactly one stream")
-		return nil
-	}
-
-	switch fields[0].Name {
-	case "videoAdded":
-		return ec._Subscription_videoAdded(ctx, fields[0])
-	default:
-		panic("unknown field " + strconv.Quote(fields[0].Name))
-	}
-}
-
 var userImplementors = []string{"User"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
@@ -2652,17 +2529,6 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return ec.marshalOString2string(ctx, sel, *v)
-}
-
-func (ec *executionContext) marshalOVideo2githubᚗcomᚋmonkrusᚋgraphqlᚑserverᚋgraphᚋmodelᚐVideo(ctx context.Context, sel ast.SelectionSet, v model.Video) graphql.Marshaler {
-	return ec._Video(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalOVideo2ᚖgithubᚗcomᚋmonkrusᚋgraphqlᚑserverᚋgraphᚋmodelᚐVideo(ctx context.Context, sel ast.SelectionSet, v *model.Video) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Video(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
