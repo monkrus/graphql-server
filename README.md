@@ -24,7 +24,7 @@ Run               `go run github.com/99designs/gqlgen generate`
 ## Further Steps
 
 ```sh
-Modify `schema.reslovers.go`
+Modify `schema.resolvers.go`
 Run    `go run server.go` 
 ```
 
